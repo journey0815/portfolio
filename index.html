@@ -37,10 +37,10 @@
   /* trim heading top-leading so titles align to the image top edge */
   .pname,.intro .name{margin-top:-0.12em;}
 
-  /* intro */
-  .intro{padding-top:64px;padding-bottom:56px;}
+  /* intro fills the first screen so its text is fully visible before the next section covers it */
+  .intro{min-height:100vh;align-content:start;padding-top:64px;padding-bottom:56px;}
   .intro .name{font-size:clamp(40px,5.6vw,68px);font-weight:700;line-height:1.0;letter-spacing:-0.02em;}
-  .intro p{font-size:17px;line-height:1.62;color:var(--fg-body);}
+  .intro p{font-family:"Noto Sans KR","Noto Sans",sans-serif;font-weight:500;font-size:17px;line-height:1.62;color:var(--fg-body);}
 
   /* project name */
   .pname{font-size:clamp(30px,3.6vw,48px);font-weight:700;letter-spacing:-0.02em;line-height:1.02;}
@@ -111,6 +111,14 @@
   #gate .gerr.show{opacity:1;}
   body.locked{overflow:hidden;}
 
+  /* scroll hint */
+  .scroll-hint{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);z-index:90;display:flex;flex-direction:column;align-items:center;gap:7px;
+    font-family:"Geist",sans-serif;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:var(--fg-dim);
+    opacity:1;transition:opacity .45s ease;pointer-events:none;}
+  .scroll-hint.hidden{opacity:0;}
+  .scroll-hint .chev{width:18px;height:18px;animation:hintBounce 1.7s ease-in-out infinite;}
+  @keyframes hintBounce{0%,100%{transform:translateY(0);}50%{transform:translateY(6px);}}
+
   /* reveal */
   .reveal{opacity:0;transform:translateY(20px);transition:opacity .7s ease,transform .7s cubic-bezier(.2,.8,.2,1);}
   .reveal.in{opacity:1;transform:none;}
@@ -120,7 +128,7 @@
     .wrap{padding:0 24px;}
     .row{position:static;min-height:auto;grid-template-columns:1fr;gap:18px;padding:44px 0;}
     .row:last-of-type{min-height:auto;align-content:start;}
-    .intro{padding-top:48px;}
+    .intro{min-height:auto;padding-top:48px;}
     .intro .name{margin-bottom:8px;}
     .pname{margin-bottom:6px;}
     .thumb{aspect-ratio:1/1;margin:6px 0;}
@@ -130,6 +138,7 @@
     html{scroll-snap-type:none;}
     .reveal{opacity:1;transform:none;transition:none;}
     .thumb:hover img{transform:none;}
+    .scroll-hint .chev{animation:none;}
   }
 </style>
 </head>
@@ -165,7 +174,7 @@
   <!-- INTRO -->
   <section class="row intro reveal">
     <h1 class="name">Jiyeon<br>Jeon</h1>
-    <p>안녕하세요. 디자이너 전지연입니다. ‘우아한형제들’ 연관 여러 사업을 거쳐 현재 ‘그란데클립’에 재직중입니다. CDO이자 아트 디렉터로서 다양한 사업, 브랜드의 디자인(브랜딩, UI/UX)과 디자인 팀을 책임지고 있습니다. 다양한 사업에 마음과 시간을 나누어 쓰며 새로운 시장의 반응을 보는 것에 보람과 즐거움을 느끼지만, 마음 한 켠에는 가장 잘하는 일에 전력을 다하는 일에 여전히 미련이 있습니다. 프로덕트 디자인(UI/UX)입니다.</p>
+    <p>안녕하세요. 디자이너 전지연입니다. ‘우아한형제들’ 연관 여러 사업의 디자인을 진행하고, 현재는 ‘그란데클립’에 재직중입니다. CDO이자 아트 디렉터로써 다양한 사업, 브랜드의 디자인(브랜딩, UI/UX)과 디자인 팀을 책임지고 있습니다. 다양한 사업에 마음과 시간을 나누어 쓰며 새로운 시장의 반응을 보는 것에 보람과 즐거움을 느끼지만, 마음 한 켠에는 가장 잘하는 일에 전력을 다하는 일에 여전히 미련이 있습니다. 프로덕트 디자인(UI/UX)입니다.</p>
     <p>13년간 일해오면서, 잘 듣고 온전히 이해하고 그 기반으로 더 나은 솔루션을 찾는 데 확실한 재능이 있음을 알았습니다. 팔로워에서 리더로, 리더에서 보다 나은 리더로 가는 과정에서 누구나 겪는 진통도 겪었으나, 동시에 더 많은 영향력을 펼치는 것에 큰 즐거움을 느꼈습니다. 동료, 사용자와의 대화를 통해 더 나아지는 팀과 일에 보람과 성취를 느낍니다. 하나의 프로덕트, 하나의 목표에 깊게 집중해보고자 지원합니다.</p>
   </section>
 
@@ -313,6 +322,11 @@ UI/UX 전체 퀄리티 책임.</p>
 
 </main>
 
+<div class="scroll-hint" id="scrollHint" aria-hidden="true">
+  <span>Scroll</span>
+  <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+</div>
+
 <div class="lightbox" id="lightbox" aria-hidden="true" role="dialog" aria-modal="true">
   <button class="lb-close" id="lbClose" aria-label="닫기">&times;</button>
   <figure>
@@ -324,6 +338,14 @@ UI/UX 전체 퀄리티 책임.</p>
 <script>
   const io=new IntersectionObserver((es)=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:0.12});
   document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+  // scroll hint: fade out once the user starts scrolling
+  var hint=document.getElementById('scrollHint');
+  if(hint){
+    var updateHint=function(){ hint.classList.toggle('hidden', window.scrollY>60); };
+    window.addEventListener('scroll',updateHint,{passive:true});
+    updateHint();
+  }
 
   document.querySelectorAll('.thumb img').forEach(img=>{
     const ph=img.parentElement.querySelector('.ph');
